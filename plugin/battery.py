@@ -23,7 +23,7 @@ def read_sysfs():
                     values[key] = handle.read().strip()
         except OSError:
             continue
-        if values["online"] != "1" or values["present"] != "1":
+        if values["present"] != "1":
             continue
         try:
             capacity = int(values["capacity"])
@@ -32,10 +32,14 @@ def read_sysfs():
             continue
         if not 0 <= capacity <= 100 or voltage <= 0:
             continue
+        # This V2 mouse reports status=Unknown and online=0 while charging over
+        # USB-C, even though capacity and voltage are live. USB-C power means
+        # charging unless the driver explicitly says Discharging.
+        charging = values["status"] != "Discharging"
         return {
             "available": True,
             "percentage": capacity,
-            "charging": values["status"] == "Charging",
+            "charging": charging,
             "voltage": round(voltage / 1000000.0, 3),
             "source": "wired",
             "error": "",
