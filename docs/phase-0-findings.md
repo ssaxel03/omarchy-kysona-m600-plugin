@@ -49,9 +49,9 @@ path: `/dev/input/by-id/usb-CX_2.4G_Wireless_Receiver-if01-hidraw`.
 - This machine has no Bluetooth adapter, so Bluetooth battery is out of scope
   here.
 - Charging lifts the measured voltage. Both the firmware level and a voltage
-  curve report about 10 points higher while charging, then drop on unplug. The
-  display now uses a resting-voltage estimate, a charging offset, grace periods,
-  and a slew limiter.
+  curve report higher while charging, then drop on unplug. The display uses
+  OpenKysona's vendor voltage curve, a charging offset, grace periods, and a
+  slew limiter.
 - The mouse can be off while the dongle is present. Every poll must handle no
   reply as "unavailable".
 - Settings need the same vendor report channel, but the kernel driver has no

@@ -12,14 +12,24 @@ BY_ID = "/dev/input/by-id/usb-CX_2.4G_Wireless_Receiver-if01-hidraw"
 REQUEST = bytes([0x08, 0x04] + [0x00] * 14 + [0x49])
 TIMEOUT = 3.0
 
-# Resting (unplugged) voltage lookup. Charging lifts the measured voltage, so
-# subtract CHARGE_OFFSET_MV before using this table while charging.
-RESTING_TABLE = [
-    (3300, 0), (3500, 5), (3700, 15), (3780, 30), (3850, 50),
-    (3950, 70), (4060, 85), (4200, 100),
+# Vendor voltage curve from OpenKysona: mV at 0%, 5%, ... 100%.
+# https://github.com/leoben49/OpenKysona/blob/main/src/lib/protocol/battery.ts
+CURVE_MV = [
+    3050, 3420, 3480, 3540, 3600, 3660, 3720, 3760, 3800, 3840, 3880, 3920,
+    3940, 3960, 3980, 4000, 4020, 4040, 4060, 4080, 4110,
 ]
 CHARGE_OFFSET_MV = 80
 FULL_MV = 4180
+
+
+def percent_from_millivolts(millivolts):
+    if millivolts <= CURVE_MV[0]:
+        return 0
+    for index in range(1, len(CURVE_MV)):
+        low, high = CURVE_MV[index - 1], CURVE_MV[index]
+        if millivolts <= high:
+            return (index - 1) * 5 + ((millivolts - low) * 5) // (high - low)
+    return 100
 
 
 def percent_from_voltage(millivolts, charging, wired):
@@ -27,12 +37,7 @@ def percent_from_voltage(millivolts, charging, wired):
         return 100
     if charging and millivolts < FULL_MV:
         millivolts -= CHARGE_OFFSET_MV
-    if millivolts <= RESTING_TABLE[0][0]:
-        return 0
-    for (low_mv, low_pct), (high_mv, high_pct) in zip(RESTING_TABLE, RESTING_TABLE[1:]):
-        if millivolts <= high_mv:
-            return low_pct + ((millivolts - low_mv) * (high_pct - low_pct)) // (high_mv - low_mv)
-    return 100
+    return percent_from_millivolts(millivolts)
 
 
 def read_sysfs():

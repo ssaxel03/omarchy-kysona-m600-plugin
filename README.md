@@ -6,7 +6,8 @@ and a charging bolt when plugged in. Click it for charge state, voltage, and
 connection details.
 
 Battery works with the **USB-C cable** and the **2.4 GHz dongle**. The percentage
-is estimated from the mouse's voltage.
+is estimated from the vendor voltage curve published by
+[OpenKysona](https://github.com/leoben49/OpenKysona).
 
 Settings controls (DPI, polling rate, sensor options, button mapping) are on the
 roadmap. See [Settings roadmap](#settings-roadmap).
