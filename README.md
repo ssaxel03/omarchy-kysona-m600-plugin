@@ -108,16 +108,25 @@ reference.
 
 The repo is a standard Omarchy plugin repo: its root is the plugin folder.
 
-1. Install `udev/70-kysona-m600.rules` into `/etc/udev/rules.d/` and reload udev.
-   The `70-` prefix matters: the `uaccess` builtin runs in `73-seat-late.rules`,
-   so a later rule would be too late to get an access ACL.
-2. Add the plugin from git:
+`omarchy plugin add` only installs plugin files. It cannot install system
+files, so the udev rule is a separate prerequisite. Without it the wired
+(USB-C) battery works, but the wireless 2.4 GHz receiver is not readable and
+the panel says "udev rule missing".
+
+1. Add the plugin from git:
    ```
    omarchy plugin add https://github.com/ssaxel03/omarchy-kysona-m600-plugin.git --enable --yes
    ```
    Omarchy clones it into `~/.config/omarchy/plugins/axel.kysona-m600/`,
    validates the manifest, rescans the shell, enables it, and places it in
    `right` via `defaultSection`.
+2. Install the udev rule once, for wireless mode:
+   ```
+   ~/.config/omarchy/plugins/axel.kysona-m600/scripts/install-udev.sh
+   ```
+   The `70-` prefix matters: the `uaccess` builtin runs in
+   `73-seat-late.rules`, so a later rule would be too late to get an access
+   ACL. The script uses `sudo` and asks for your password.
 3. Put it beside the agents icon:
    ```
    omarchy bar put axel.kysona-m600 --before omarchy.agents

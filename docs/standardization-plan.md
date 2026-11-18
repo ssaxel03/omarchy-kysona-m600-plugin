@@ -97,14 +97,16 @@ the exact position beside the agents icon.
 
 ### 6. Install the udev rule
 
-`omarchy plugin add` does not install system files. Keep this documented as a
-prerequisite:
+`omarchy plugin add` does not install system files. Ship `scripts/install-udev.sh`
+in the repo and document running it once after install:
 
 ```
-sudo install -m 644 udev/70-kysona-m600.rules /etc/udev/rules.d/70-kysona-m600.rules
-sudo udevadm control --reload-rules
-sudo udevadm trigger --subsystem-match=hidraw --action=add
+~/.config/omarchy/plugins/axel.kysona-m600/scripts/install-udev.sh
 ```
+
+The helper reports "udev rule missing" in the panel when wireless access is
+blocked, so the prerequisite is visible instead of looking like a dead plugin.
+Wired USB-C mode works without the rule.
 
 The `70-` prefix is required because the uaccess builtin runs in
 `73-seat-late.rules`.

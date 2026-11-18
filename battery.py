@@ -108,6 +108,11 @@ def read_hidraw():
 
     try:
         fd = os.open(path, os.O_RDWR | os.O_NONBLOCK)
+    except PermissionError:
+        return {
+            "available": False,
+            "error": "udev rule missing — run scripts/install-udev.sh (wireless mode only)",
+        }
     except OSError as exc:
         return {"available": False, "error": str(exc)}
 
