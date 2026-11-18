@@ -48,8 +48,9 @@ controls until a vendor command is known.
 
 ## Phase 1 — Minimal battery widget (done)
 
-The plugin, hidraw helper, translations, and udev rule are in `plugin/` and
-`udev/`. The plugin is linked into the user plugin directory and placed in
+The plugin, hidraw helper, translations, and udev rule are at the repo root and
+in `udev/`. The plugin is installed from git into the user plugin directory and
+placed in
 `bar.layout.right`, before `omarchy.agents`. The bar button is a mouse icon plus
 the percentage and is always visible. Clicking opens a read-only battery panel.
 

@@ -57,7 +57,7 @@ Sources checked while writing this:
 
 - **Bar widget:** a mouse icon plus the percentage on its right, inside one
   clickable button. It is always visible and sits immediately left of
-  `omarchy.agents`. It polls every 10 seconds. `plugin/battery.py` first reads
+  `omarchy.agents`. It polls every 10 seconds. `battery.py` first reads
   the `kysona` power_supply entry in sysfs (USB-C charging), then falls back to
   the 2.4 GHz receiver over hidraw (UPower does not expose that dongle). When the
   mouse is off or unreachable, the label switches to `—` and the panel shows
@@ -106,24 +106,33 @@ reference.
 
 ## Install
 
-These steps are done on this machine. The plan to move from this development
-symlink to a standard `omarchy plugin add` install is in
-[docs/standardization-plan.md](docs/standardization-plan.md).
+The repo is a standard Omarchy plugin repo: its root is the plugin folder.
 
 1. Install `udev/70-kysona-m600.rules` into `/etc/udev/rules.d/` and reload udev.
    The `70-` prefix matters: the `uaccess` builtin runs in `73-seat-late.rules`,
    so a later rule would be too late to get an access ACL.
-2. Link this repo's `plugin/` directory into
-   `~/.config/omarchy/plugins/axel.kysona-m600/`.
-3. Add `{"id": "axel.kysona-m600"}` to `bar.layout.right` in
-   `~/.config/omarchy/shell.json`, before `omarchy.agents`. `omarchy bar put
-   axel.kysona-m600 --before omarchy.agents` does this.
-4. Because the plugin directory is a symlink to this repo, file-watch hot reload
-   does not fire. After edits, run `omarchy restart shell`.
+2. Add the plugin from git:
+   ```
+   omarchy plugin add https://github.com/ssaxel03/omarchy-kysona-m600-plugin.git --enable --yes
+   ```
+   Omarchy clones it into `~/.config/omarchy/plugins/axel.kysona-m600/`,
+   validates the manifest, rescans the shell, enables it, and places it in
+   `right` via `defaultSection`.
+3. Put it beside the agents icon:
+   ```
+   omarchy bar put axel.kysona-m600 --before omarchy.agents
+   ```
 
-Check with `omarchy plugin list | grep kysona` and with `python3 plugin/battery.py`
-from this repo. The helper prints a JSON line with `available`, `percentage`,
-`charging`, and `voltage`.
+Manage it with `omarchy plugin update axel.kysona-m600`,
+`omarchy plugin disable axel.kysona-m600`, and
+`omarchy plugin remove axel.kysona-m600 --yes`.
+
+Check with `omarchy plugin list | grep kysona` and with:
+```
+python3 ~/.config/omarchy/plugins/axel.kysona-m600/battery.py
+```
+The helper prints a JSON line with `available`, `percentage`, `voltage`,
+`voltageLevel`, `source`, and `charging`.
 
 ## Non-goals
 

@@ -15,6 +15,7 @@
     "displayName": "Kysona M600 battery",
     "description": "Mouse battery level from the 2.4 GHz receiver",
     "category": "System",
-    "allowMultiple": false
+    "allowMultiple": false,
+    "defaultSection": "right"
   }
 }
