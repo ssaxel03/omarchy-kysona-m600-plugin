@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Read the Kysona M600 battery from its 2.4 GHz receiver over hidraw."""
+"""Read the Kysona M600 battery from sysfs (wired) or hidraw (2.4 GHz dongle)."""
 
+import glob
 import json
 import os
 import select
@@ -10,6 +11,36 @@ import time
 BY_ID = "/dev/input/by-id/usb-CX_2.4G_Wireless_Receiver-if01-hidraw"
 REQUEST = bytes([0x08, 0x04] + [0x00] * 14 + [0x49])
 TIMEOUT = 3.0
+
+
+def read_sysfs():
+    """The in-tree kysona driver exposes battery data when the mouse is wired."""
+    for path in sorted(glob.glob("/sys/class/power_supply/kysona-*-battery")):
+        try:
+            values = {}
+            for key in ("capacity", "status", "online", "present", "voltage_now"):
+                with open(os.path.join(path, key), "r", encoding="ascii") as handle:
+                    values[key] = handle.read().strip()
+        except OSError:
+            continue
+        if values["online"] != "1" or values["present"] != "1":
+            continue
+        try:
+            capacity = int(values["capacity"])
+            voltage = int(values["voltage_now"])
+        except ValueError:
+            continue
+        if not 0 <= capacity <= 100 or voltage <= 0:
+            continue
+        return {
+            "available": True,
+            "percentage": capacity,
+            "charging": values["status"] == "Charging",
+            "voltage": round(voltage / 1000000.0, 3),
+            "source": "wired",
+            "error": "",
+        }
+    return None
 
 
 def fallback_path():
@@ -38,7 +69,7 @@ def fallback_path():
     return None
 
 
-def read_battery():
+def read_hidraw():
     path = BY_ID if os.path.exists(BY_ID) else fallback_path()
     if not path:
         return {"available": False, "error": "receiver not found"}
@@ -77,6 +108,7 @@ def read_battery():
                 "percentage": capacity,
                 "charging": bool(data[7]),
                 "voltage": round(voltage / 1000.0, 3),
+                "source": "wireless",
                 "error": "",
             }
         return {"available": False, "error": "mouse is off or unreachable"}
@@ -86,7 +118,7 @@ def read_battery():
 
 def main():
     try:
-        result = read_battery()
+        result = read_sysfs() or read_hidraw()
     except Exception as exc:  # keep the shell alive on unexpected device states
         result = {"available": False, "error": "{}: {}".format(type(exc).__name__, exc)}
     sys.stdout.write(json.dumps(result) + "\n")

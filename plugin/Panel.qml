@@ -84,6 +84,7 @@ Panel {
     bar: root.bar
     text: root.available
       ? root.mouseGlyph + " " + Commons.I18n.formatNumber(root.percentage) + "%"
+        + (root.charging ? " 󰂆" : "")
       : root.mouseGlyph + " —"
     fontSize: Style.font.body
     keepSpace: true
@@ -252,7 +253,9 @@ Panel {
             width: (parent.width - parent.spacing) / 2
           }
           Text {
-            text: "2.4 GHz USB receiver"
+            text: battery.source === "wired"
+              ? strings.t("mouseBattery.connectionWired")
+              : strings.t("mouseBattery.connectionWireless")
             textFormat: Text.PlainText
             color: root.bar.foreground
             font.family: root.bar.fontFamily

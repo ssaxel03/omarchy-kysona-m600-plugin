@@ -57,9 +57,11 @@ Sources checked while writing this:
 
 - **Bar widget:** a mouse icon plus the percentage on its right, inside one
   clickable button. It is always visible and sits immediately left of
-  `omarchy.agents`. Data comes from `plugin/battery.py` over hidraw, since UPower
-  does not expose this dongle. It polls every 10 seconds. When the mouse is off
-  or unreachable, the label switches to `—` and the panel shows "Unavailable".
+  `omarchy.agents`. It polls every 10 seconds. `plugin/battery.py` first reads
+  the `kysona` power_supply entry in sysfs (USB-C charging), then falls back to
+  the 2.4 GHz receiver over hidraw (UPower does not expose that dongle). When the
+  mouse is off or unreachable, the label switches to `—` and the panel shows
+  "Unavailable". Charging adds a small bolt next to the percentage.
 - **On click:** a Quickshell panel with battery percentage, charge state,
   voltage, and device details. No settings controls yet.
 - **UI model:** the built-in `omarchy.monitor` display panel in the top bar. Same

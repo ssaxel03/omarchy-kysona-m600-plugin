@@ -2,6 +2,8 @@
   "mouseBattery.title": "Mouse battery",
   "mouseBattery.device": "Device",
   "mouseBattery.connection": "Connection",
+  "mouseBattery.connectionWireless": "2.4 GHz USB receiver",
+  "mouseBattery.connectionWired": "USB-C cable",
   "mouseBattery.state": "State",
   "mouseBattery.voltage": "Voltage",
   "mouseBattery.charging": "Charging",
