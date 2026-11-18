@@ -106,7 +106,9 @@ reference.
 
 ## Install
 
-These steps are done on this machine.
+These steps are done on this machine. The plan to move from this development
+symlink to a standard `omarchy plugin add` install is in
+[docs/standardization-plan.md](docs/standardization-plan.md).
 
 1. Install `udev/70-kysona-m600.rules` into `/etc/udev/rules.d/` and reload udev.
    The `70-` prefix matters: the `uaccess` builtin runs in `73-seat-late.rules`,

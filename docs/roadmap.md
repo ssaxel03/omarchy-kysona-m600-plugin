@@ -138,10 +138,12 @@ and translations guidance, with findings recorded in `docs/`.
 
 ## Phase 4 — Packaging and handover
 
-- Decide distribution: plain git repo cloned into the plugins directory, or
-  `omarchy plugin clone <url>` if that flow fits a third-party plugin. Verify
-  which one works; do not assume.
-- Finalize the plugin id and document exact install / uninstall steps in README.
+- Standardize installation: flatten the repo into a plugin repo and install with
+  `omarchy plugin add <url> --enable`. Full steps are in
+  [standardization-plan.md](standardization-plan.md). `omarchy plugin clone` is
+  for first-party plugins only.
+- Plugin id is fixed as `axel.kysona-m600`; document exact install / uninstall
+  steps in README.
 - Add a screenshot and a short settings reference.
 - Document how to update when the kernel driver or Omarchy shell changes.
 
