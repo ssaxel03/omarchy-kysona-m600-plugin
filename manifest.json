@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "ssaxel03.kysona-m600",
   "name": "Omarchy Kysona M600 Plugin",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "author": "ssaxel03",
   "description": "Omarchy bar plugin for the Kysona M600 mouse",
   "kinds": [

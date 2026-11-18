@@ -29,9 +29,6 @@ Panel {
   property real unplugStartTime: 0
   property real lastLevelChange: 0
   readonly property int voltageLevel: Math.max(0, Math.min(100, Math.round(displayLevel)))
-  readonly property int rawLevel: available && battery.voltageLevel !== undefined
-    ? Math.max(0, Math.min(100, Number(battery.voltageLevel)))
-    : 0
 
   Commons.Translations {
     id: strings
@@ -49,9 +46,9 @@ Panel {
 
   function etaText() {
     if (!available) return strings.t("mouseBattery.estimating")
-    if (rawLevel >= 99 && (charging || battery.source === "wired"))
+    if (voltageLevel >= 99 && (charging || battery.source === "wired"))
       return strings.t("mouseBattery.full")
-    if (!charging && rawLevel <= 1) return strings.t("mouseBattery.empty")
+    if (!charging && voltageLevel <= 1) return strings.t("mouseBattery.empty")
     if (etaSeconds === undefined || etaSeconds === null)
       return strings.t("mouseBattery.estimating")
     var seconds = Number(etaSeconds)
@@ -98,10 +95,16 @@ Panel {
     if (!chargingNow && previousCharging === 1) unplugStartTime = now
     previousCharging = chargingNow ? 1 : 0
 
+    var atFull = chargingNow && nextLevel >= 99
+    var atEmpty = !chargingNow && nextLevel >= 0 && nextLevel <= 1
     var plugGrace = chargingNow && now - chargeStartTime < 6000
     var unplugGrace = !chargingNow && now - unplugStartTime < 2000
 
-    if (nextLevel >= 0 && !plugGrace && !unplugGrace) {
+    if (atFull || atEmpty) {
+      // The displayed value and the label must never disagree at the limits.
+      displayLevel = atFull ? 100 : 0
+      lastLevelChange = now
+    } else if (nextLevel >= 0 && !plugGrace && !unplugGrace) {
       if (displayLevel < 0) {
         displayLevel = nextLevel
         lastLevelChange = now
