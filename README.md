@@ -61,3 +61,14 @@ omarchy plugin disable ssaxel03.kysona-m600
 omarchy plugin enable ssaxel03.kysona-m600 --section right
 omarchy plugin remove ssaxel03.kysona-m600 --yes
 ```
+
+## Versioning
+
+`VERSION` at the repo root is the source of truth. To release:
+
+```sh
+# edit VERSION to MAJOR.MINOR.PATCH
+scripts/sync-version.sh
+git add -A && git commit -m "Release X.Y.Z" && git push
+omarchy plugin update ssaxel03.kysona-m600
+```
