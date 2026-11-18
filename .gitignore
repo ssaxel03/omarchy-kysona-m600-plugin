@@ -1,0 +1,41 @@
+# Local scratch / test installs
+local/
+scratch/
+tmp/
+*.local
+
+# Python helper (if used)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Rust helper (if used)
+/target/
+Cargo.lock
+
+# Build output
+/build/
+/dist/
+*.o
+*.so
+Makefile
+.qmake.stash
+
+# QML / Qt generated files
+*.qmlc
+*.jsc
+.qmlcache/
+
+# Logs and env
+*.log
+.env
+.env.*
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
