@@ -45,7 +45,10 @@ Panel {
   }
 
   function etaText() {
-    if (!available || etaSeconds === undefined || etaSeconds === null)
+    if (!available) return strings.t("mouseBattery.estimating")
+    if (charging && root.voltageLevel >= 99) return strings.t("mouseBattery.full")
+    if (!charging && root.voltageLevel <= 1) return strings.t("mouseBattery.empty")
+    if (etaSeconds === undefined || etaSeconds === null)
       return strings.t("mouseBattery.estimating")
     var seconds = Number(etaSeconds)
     if (!isFinite(seconds) || seconds < 0) return strings.t("mouseBattery.estimating")

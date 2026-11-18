@@ -9,6 +9,8 @@
   "mouseBattery.timeUntilFull": "Time until full (Beta)",
   "mouseBattery.timeUntilEmpty": "Time until empty (Beta)",
   "mouseBattery.estimating": "Estimating…",
+  "mouseBattery.full": "Full",
+  "mouseBattery.empty": "Empty",
   "mouseBattery.minute": "min",
   "mouseBattery.charging": "Charging",
   "mouseBattery.discharging": "Discharging",
