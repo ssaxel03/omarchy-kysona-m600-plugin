@@ -15,14 +15,19 @@ Panel {
 
   property var battery: ({})
   readonly property bool available: battery.available === true
-  readonly property int percentage: available ? Math.max(0, Math.min(100, Number(battery.percentage))) : 0
-  readonly property int voltageLevel: available && battery.voltageLevel !== undefined
-    ? Math.max(0, Math.min(100, Number(battery.voltageLevel)))
-    : percentage
   readonly property bool charging: available && battery.charging === true
   readonly property double voltage: available ? Number(battery.voltage) : 0
   readonly property string errorText: available ? "" : String(battery.error || "")
   readonly property string mouseGlyph: "󰍽"
+
+  // Smoothed level shown in the bar and panel. Raw readings are kept in
+  // `battery` but never jump the display during a plug/unplug settling window.
+  property real displayLevel: -1
+  property int previousCharging: -1
+  property real chargeStartTime: 0
+  property real unplugStartTime: 0
+  property real lastLevelChange: 0
+  readonly property int voltageLevel: Math.max(0, Math.min(100, Math.round(displayLevel)))
 
   Commons.Translations {
     id: strings
@@ -50,11 +55,48 @@ Panel {
       return
     }
     if (!parsed || typeof parsed !== "object") return
-    if (parsed.available === true) {
-      var value = Number(parsed.percentage)
-      if (!isFinite(value) || value < 0 || value > 100) return
-      parsed.percentage = value
+
+    var now = Date.now()
+    var chargingNow = parsed.available === true && parsed.charging === true
+    var nextLevel = -1
+    if (parsed.available === true && parsed.voltageLevel !== undefined) {
+      var value = Number(parsed.voltageLevel)
+      if (isFinite(value) && value >= 0 && value <= 100) nextLevel = value
     }
+
+    if (previousCharging === -1) {
+      // First reading after the shell starts: show it immediately.
+      if (nextLevel >= 0) {
+        displayLevel = nextLevel
+        lastLevelChange = now
+      }
+      previousCharging = chargingNow ? 1 : 0
+      battery = parsed
+      return
+    }
+
+    if (chargingNow && previousCharging === 0) chargeStartTime = now
+    if (!chargingNow && previousCharging === 1) unplugStartTime = now
+    previousCharging = chargingNow ? 1 : 0
+
+    var plugGrace = chargingNow && now - chargeStartTime < 6000
+    var unplugGrace = !chargingNow && now - unplugStartTime < 2000
+
+    if (nextLevel >= 0 && !plugGrace && !unplugGrace) {
+      if (displayLevel < 0) {
+        displayLevel = nextLevel
+        lastLevelChange = now
+      } else if (now - lastLevelChange >= 15000) {
+        var delta = nextLevel - displayLevel
+        if (Math.abs(delta) <= 1) {
+          displayLevel = nextLevel
+        } else {
+          displayLevel += delta > 0 ? 1 : -1
+        }
+        lastLevelChange = now
+      }
+    }
+
     battery = parsed
   }
 
@@ -173,9 +215,7 @@ Panel {
 
           Text {
             id: heroPercent
-            text: root.available
-              ? (root.charging ? "~" : "") + Commons.I18n.formatNumber(root.voltageLevel) + "%"
-              : "—"
+            text: root.available ? Commons.I18n.formatNumber(root.voltageLevel) + "%" : "—"
             textFormat: Text.PlainText
             color: root.bar.foreground
             font.family: root.bar.fontFamily
@@ -268,29 +308,6 @@ Panel {
             width: (parent.width - parent.spacing) / 2
             horizontalAlignment: Text.AlignRight
             elide: Text.ElideRight
-          }
-        }
-
-        Row {
-          width: parent.width
-          spacing: Style.space(10)
-
-          Text {
-            text: strings.t("mouseBattery.reportedLevel")
-            textFormat: Text.PlainText
-            color: Qt.darker(root.bar.foreground, 1.4)
-            font.family: root.bar.fontFamily
-            font.pixelSize: Style.font.body
-            width: (parent.width - parent.spacing) / 2
-          }
-          Text {
-            text: root.available ? Commons.I18n.formatNumber(root.percentage) + "%" : "—"
-            textFormat: Text.PlainText
-            color: root.bar.foreground
-            font.family: root.bar.fontFamily
-            font.pixelSize: Style.font.body
-            width: (parent.width - parent.spacing) / 2
-            horizontalAlignment: Text.AlignRight
           }
         }
 

@@ -64,11 +64,11 @@ Sources checked while writing this:
   "Unavailable". Charging adds a small bolt next to the percentage.
   The displayed percentage comes from a piecewise resting-voltage lookup. While
   charging, 80 mV is subtracted before the lookup to cancel the voltage lift; at
-  4.20 V while wired it reports 100%. The raw firmware level is shown separately
-  in the panel as "Reported level". During charging the panel prefixes the
-  estimate with `~`.
-- **On click:** a Quickshell panel with the voltage-derived percentage, the raw
-  reported level, charge state, voltage, and device details. No settings
+  4.20 V while wired it reports 100%. A 6-second grace period on plug-in and a
+  1%-per-15s slew limiter suppress voltage spikes and jitter; unplugging uses a
+  2-second grace period.
+- **On click:** a Quickshell panel with the voltage-derived percentage, charge
+  state, voltage, and device details. No settings
   controls yet.
 - **UI model:** the built-in `omarchy.monitor` display panel in the top bar. Same
   pattern: a `bar-widget` plugin with a `Panel.qml` that uses `qs.Ui` `Panel` and
