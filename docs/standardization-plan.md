@@ -3,9 +3,9 @@
 **Status: completed on 2026-11-18.** The repo was flattened, pushed to
 `https://github.com/ssaxel03/omarchy-kysona-m600-plugin.git`, and installed with
 `omarchy plugin add ... --enable --yes`. The symlink is gone; the installed
-plugin is a real git checkout under `~/.config/omarchy/plugins/axel.kysona-m600/`.
+plugin is a real git checkout under `~/.config/omarchy/plugins/ssaxel03.kysona-m600/`.
 
-Goal: make `axel.kysona-m600` installable and maintainable through Omarchy's
+Goal: make `ssaxel03.kysona-m600` installable and maintainable through Omarchy's
 own plugin commands, with no symlinks and no manual file copying.
 
 ## What Omarchy actually requires
@@ -20,7 +20,7 @@ Read from `omarchy-plugin-add` and `omarchy-plugin-validate` on this machine:
 - The validator refuses **any symlink** inside the plugin folder (except `.git`).
   Our current symlink install would be rejected by a fresh `plugin add`.
 - `id` must match `^[A-Za-z0-9][A-Za-z0-9._-]*$` and must not start with
-  `omarchy.`. `axel.kysona-m600` is valid.
+  `omarchy.`. `ssaxel03.kysona-m600` is valid.
 - `entryPoints.barWidget` is required for `kinds: ["bar-widget"]`.
 - `barWidget.defaultSection` may be `left`, `centerBegin`, `center`,
   `centerEnd`, `tray`, or `right`. It controls placement when enabled without
@@ -86,9 +86,9 @@ Push this repository to a git URL the user controls. The URL is required by
 ### 5. Replace the dev install with the standard install
 
 ```
-rm ~/.config/omarchy/plugins/axel.kysona-m600
+rm ~/.config/omarchy/plugins/ssaxel03.kysona-m600
 omarchy plugin add <git-url> --enable --yes
-omarchy bar put axel.kysona-m600 --before omarchy.agents
+omarchy bar put ssaxel03.kysona-m600 --before omarchy.agents
 ```
 
 `plugin add` clones real files, validates them, rescans the shell, enables the
@@ -101,7 +101,7 @@ the exact position beside the agents icon.
 in the repo and document running it once after install:
 
 ```
-~/.config/omarchy/plugins/axel.kysona-m600/scripts/install-udev.sh
+~/.config/omarchy/plugins/ssaxel03.kysona-m600/scripts/install-udev.sh
 ```
 
 The helper reports "udev rule missing" in the panel when wireless access is
@@ -116,7 +116,7 @@ The `70-` prefix is required because the uaccess builtin runs in
 ```
 omarchy plugin list | grep kysona
 omarchy-shell shell listPlugins
-python3 ~/.config/omarchy/plugins/axel.kysona-m600/battery.py
+python3 ~/.config/omarchy/plugins/ssaxel03.kysona-m600/battery.py
 journalctl --user --no-pager -n 200 | grep -i kysona
 ```
 
@@ -127,10 +127,10 @@ restart.
 ### 8. Day-to-day use after standardization
 
 ```
-omarchy plugin update axel.kysona-m600     # pull changes
-omarchy plugin disable axel.kysona-m600
-omarchy plugin enable axel.kysona-m600 --section right
-omarchy plugin remove axel.kysona-m600 --yes
+omarchy plugin update ssaxel03.kysona-m600     # pull changes
+omarchy plugin disable ssaxel03.kysona-m600
+omarchy plugin enable ssaxel03.kysona-m600 --section right
+omarchy plugin remove ssaxel03.kysona-m600 --yes
 ```
 
 ## Notes / non-goals

@@ -8,8 +8,8 @@ import qs.Ui
 // Data comes from battery.py (hidraw); UPower does not expose this dongle.
 Panel {
   id: root
-  moduleName: "axel.kysona-m600"
-  ipcTarget: "axel.kysona-m600"
+  moduleName: "ssaxel03.kysona-m600"
+  ipcTarget: "ssaxel03.kysona-m600"
 
   readonly property string helperPath: String(Qt.resolvedUrl("battery.py")).replace(/^file:\/\//, "")
 

@@ -54,7 +54,7 @@ placed in
 `bar.layout.right`, before `omarchy.agents`. The bar button is a mouse icon plus
 the percentage and is always visible. Clicking opens a read-only battery panel.
 
-1. Create the plugin skeleton in `~/.config/omarchy/plugins/axel.kysona-m600/`
+1. Create the plugin skeleton in `~/.config/omarchy/plugins/ssaxel03.kysona-m600/`
    (or develop here and link it in during testing).
 2. Implement a battery data source as a small user-space helper reading the
    dongle's hidraw node (see Phase 0 findings):
@@ -98,7 +98,7 @@ instead of reverse-engineering the settings protocol again.
    declares id `omarchy.monitor` and entry point `panels/monitor/Panel.qml`; the
    QML uses `qs.Ui` `Panel` with `moduleName` and `ipcTarget`, plus a keyboard
    cursor model so `j`/`k` and pointer hover share one highlight. Our plugin uses
-   the same shape with id `axel.kysona-m600`. Read-only reference:
+   the same shape with id `ssaxel03.kysona-m600`. Read-only reference:
    `/usr/share/omarchy/shell/plugins/panels/monitor/Panel.qml`.
 2. Use `KeyboardPanel` growing from the bar icon (or `PopupCard` where a bar
    panel is not available), so motion, focus, and RTL mirroring are inherited
@@ -143,7 +143,7 @@ and translations guidance, with findings recorded in `docs/`.
   `omarchy plugin add <url> --enable`. Full steps are in
   [standardization-plan.md](standardization-plan.md). `omarchy plugin clone` is
   for first-party plugins only.
-- Plugin id is fixed as `axel.kysona-m600`; document exact install / uninstall
+- Plugin id is fixed as `ssaxel03.kysona-m600`; document exact install / uninstall
   steps in README.
 - Add a screenshot and a short settings reference.
 - Document how to update when the kernel driver or Omarchy shell changes.
@@ -159,7 +159,7 @@ and translations guidance, with findings recorded in `docs/`.
 - Does the M600 expose battery in Bluetooth mode as well as 2.4 GHz?
 - Is there already a usable open-source M600 settings tool?
 - Which settings does the Linux `kysona` driver expose, if any?
-- Where will the repo be hosted? The plugin id is set: `axel.kysona-m600`.
+- Where will the repo be hosted? The plugin id is set: `ssaxel03.kysona-m600`.
 
 ## Definition of done
 

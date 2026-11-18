@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "axel.kysona-m600",
-  "name": "Kysona M600 battery",
+  "id": "ssaxel03.kysona-m600",
+  "name": "Omarchy Kysona M600 Plugin",
   "version": "0.1.0",
-  "author": "axel",
-  "description": "Wireless battery level for the Kysona M600 mouse, read from its 2.4 GHz receiver",
+  "author": "ssaxel03",
+  "description": "Omarchy bar plugin for the Kysona M600 mouse",
   "kinds": [
     "bar-widget"
   ],
@@ -12,8 +12,8 @@
     "barWidget": "Panel.qml"
   },
   "barWidget": {
-    "displayName": "Kysona M600 battery",
-    "description": "Mouse battery level from the 2.4 GHz receiver",
+    "displayName": "Kysona M600",
+    "description": "Battery level for the Kysona M600 mouse",
     "category": "System",
     "allowMultiple": false,
     "defaultSection": "right"

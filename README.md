@@ -17,7 +17,7 @@ Requires Omarchy with Quickshell.
 
 ```sh
 omarchy plugin add https://github.com/ssaxel03/omarchy-kysona-m600-plugin.git --enable --yes
-omarchy bar put axel.kysona-m600 --before omarchy.agents
+omarchy bar put ssaxel03.kysona-m600 --before omarchy.agents
 ```
 
 ### USB-C (wired)
@@ -30,7 +30,7 @@ a charging bolt. No other setup is needed.
 Linux only lets root read the dongle directly. Grant your user access once:
 
 ```sh
-~/.config/omarchy/plugins/axel.kysona-m600/scripts/install-udev.sh
+~/.config/omarchy/plugins/ssaxel03.kysona-m600/scripts/install-udev.sh
 ```
 
 It installs `/etc/udev/rules.d/70-kysona-m600.rules` and asks for your password.
@@ -56,8 +56,8 @@ Contributions for settings support, Bluetooth, or anything else are welcome.
 ## Manage
 
 ```sh
-omarchy plugin update axel.kysona-m600
-omarchy plugin disable axel.kysona-m600
-omarchy plugin enable axel.kysona-m600 --section right
-omarchy plugin remove axel.kysona-m600 --yes
+omarchy plugin update ssaxel03.kysona-m600
+omarchy plugin disable ssaxel03.kysona-m600
+omarchy plugin enable ssaxel03.kysona-m600 --section right
+omarchy plugin remove ssaxel03.kysona-m600 --yes
 ```
