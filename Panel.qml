@@ -29,6 +29,9 @@ Panel {
   property real unplugStartTime: 0
   property real lastLevelChange: 0
   readonly property int voltageLevel: Math.max(0, Math.min(100, Math.round(displayLevel)))
+  readonly property int rawLevel: available && battery.voltageLevel !== undefined
+    ? Math.max(0, Math.min(100, Number(battery.voltageLevel)))
+    : 0
 
   Commons.Translations {
     id: strings
@@ -46,8 +49,9 @@ Panel {
 
   function etaText() {
     if (!available) return strings.t("mouseBattery.estimating")
-    if (charging && root.voltageLevel >= 99) return strings.t("mouseBattery.full")
-    if (!charging && root.voltageLevel <= 1) return strings.t("mouseBattery.empty")
+    if (rawLevel >= 99 && (charging || battery.source === "wired"))
+      return strings.t("mouseBattery.full")
+    if (!charging && rawLevel <= 1) return strings.t("mouseBattery.empty")
     if (etaSeconds === undefined || etaSeconds === null)
       return strings.t("mouseBattery.estimating")
     var seconds = Number(etaSeconds)
