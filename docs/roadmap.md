@@ -80,7 +80,17 @@ plugin loads with no QML errors. Verified: helper returns the live value, the
 plugin is listed as enabled, and the shell log shows no QML errors. Not yet
 tested: shell restart, KVM switch-away/return, and theme changes.
 
-## Phase 2 — Click interaction and settings panel
+## Phase 2 — Click interaction and settings panel (postponed)
+
+**Status: postponed.** Ship the battery panel first; resume this phase when the
+user asks for settings controls.
+
+Protocol reference: [OpenKysona](https://github.com/leoben49/OpenKysona), whose
+`docs/PROTOCOL.md` documents the M600 V2 flash registers (polling rate at
+`0x00`, DPI stage count at `0x02`, active stage at `0x04`, DPI stages at `0x0C`,
+sensor toggles and button bindings) and the `0x07`/`0x08` write/read commands on
+the same vendor HID report used by the battery reader. Use that documentation
+instead of reverse-engineering the settings protocol again.
 
 1. Copy the structure of the built-in `omarchy.monitor` display panel, which is
    the GUI target the user asked for. It is a `bar-widget` plugin: `manifest.json`
@@ -104,8 +114,8 @@ tested: shell restart, KVM switch-away/return, and theme changes.
 5. Persist chosen settings locally, or read current values back from the device
    on open so the panel never lies about device state.
 
-**Exit criteria:** opening the panel shows live values; a change is confirmed by
-reading the value back or by an observable device response.
+**Exit criteria (when resumed):** opening the panel shows live values; a change
+is confirmed by reading the value back or by an observable device response.
 
 ## Phase 3 — Omarchy compliance and polish
 

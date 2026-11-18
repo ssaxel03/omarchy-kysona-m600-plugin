@@ -79,6 +79,11 @@ Sources checked while writing this:
   status and links to the vendor configuration path rather than pretending to
   control it.
 
+Settings controls (DPI, polling rate, sensor options, button mapping) are
+**postponed**. They are scoped in [docs/roadmap.md](docs/roadmap.md#phase-2--click-interaction-and-settings-panel-postponed),
+with [OpenKysona](https://github.com/leoben49/OpenKysona) as the protocol
+reference.
+
 ## Omarchy conventions this must follow
 
 - Build on `qs.Ui` components (`KeyboardPanel` / `PopupCard`, `Button`) rather than
