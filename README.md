@@ -62,6 +62,10 @@ omarchy plugin enable ssaxel03.kysona-m600 --section right
 omarchy plugin remove ssaxel03.kysona-m600 --yes
 ```
 
+## License
+
+MIT. See [LICENSE](LICENSE).
+
 ## Versioning
 
 `VERSION` at the repo root is the source of truth. To release:
