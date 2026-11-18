@@ -39,9 +39,12 @@ file path, and you can change it before we write code.
 
 | Question | Current answer | Confidence |
 | --- | --- | --- |
-| Can Linux read the M600 battery? | Yes, in principle. Linux 6.13 added a `kysona` HID driver that reports battery status for the M600. | Reported by Phoronix, 20 Nov 2024. Verify on this machine. |
-| Will UPower expose it to the shell? | Likely, through `/sys/class/power_supply/` and `upower`, as with other HID mice. | To verify. Check which field carries the percentage. |
-| Can we change settings (DPI, polling rate, profiles)? | Unknown. The vendor utility normally does this. The kernel driver is not known to expose settings. May need hidraw protocol work or an existing open-source controller. | Main risk. Investigate before committing. |
+| Can Linux read the M600 battery? | Yes, tested on this machine. A 17-byte vendor HID report returns capacity, charging flag, and voltage from the in-use dongle. | Tested 2026-11-18; see [findings](docs/phase-0-findings.md). |
+| Will UPower expose it to the shell? | No for the in-use `3554:F5D5` dongle. No `power_supply` device is created; the in-tree `kysona` driver only supports other USB IDs, and a dynamic bind test failed. The plugin reads hidraw directly. | Verified on this machine. |
+| Can we change settings (DPI, polling rate, profiles)? | Unknown. The vendor report channel is proven, but no settings command is known. No open-source Linux controller for this mouse was found. | Main risk. Deferred to later research. |
+
+Phase 0 was started on this machine. Findings and open checks are in
+[docs/phase-0-findings.md](docs/phase-0-findings.md).
 
 Sources checked while writing this:
 
@@ -52,7 +55,8 @@ Sources checked while writing this:
 ## Planned behaviour
 
 - **Bar widget:** battery icon plus percentage, using the active Omarchy theme
-  colors. Updates on change, not on a fixed poll loop where avoidable.
+  colors. Data comes from a small hidraw reader, since UPower does not expose
+  this dongle.
 - **On click:** a Quickshell panel showing battery detail and the settings we can
   actually control. The exact controls depend on Phase 0 of the roadmap.
 - **UI model:** the built-in `omarchy.monitor` display panel in the top bar. Same
@@ -86,10 +90,12 @@ Sources checked while writing this:
 
 ## Install (planned, not implemented)
 
-1. Put or link the plugin source into `~/.config/omarchy/plugins/axel.kysona-m600/`.
-2. Add the id `axel.kysona-m600` to `bar.layout` in `~/.config/omarchy/shell.json`
+1. Install the udev `uaccess` rule for the dongle's hidraw node so the shell can
+   read it without root.
+2. Put or link the plugin source into `~/.config/omarchy/plugins/axel.kysona-m600/`.
+3. Add the id `axel.kysona-m600` to `bar.layout` in `~/.config/omarchy/shell.json`
    (a section such as `centerEnd` or `right` keeps the clock centered).
-3. Changes hot-reload. If they do not, run `omarchy-shell shell rescanPlugins`.
+4. Changes hot-reload. If they do not, run `omarchy-shell shell rescanPlugins`.
 
 ## Non-goals
 

@@ -10,7 +10,8 @@ there.
 
 ## Phase 0 — Feasibility and discovery (gate)
 
-No UI code until these answers exist.
+No UI code until these answers exist. Phase 0 is complete; findings are in
+[phase-0-findings.md](phase-0-findings.md).
 
 1. **Confirm kernel support on this machine.**
    - Check kernel version and that the `kysona` HID driver is present/loaded.
@@ -22,10 +23,12 @@ No UI code until these answers exist.
 
 2. **Confirm the data path to Quickshell.**
    - Run `upower -e` and `upower -i <device-path>` for the mouse.
-   - Decide: read UPower over D-Bus, or read sysfs directly. Prefer UPower for
-     change signals; use sysfs as fallback.
-   - Note the exact device id / sysfs path so the widget can find the mouse
-     without matching on a fragile name.
+   - Result on this machine: no `power_supply` device for the in-use dongle, so
+     UPower and sysfs cannot be used. The data path is a user-space hidraw
+     reader instead (see findings).
+   - Use a stable device path such as
+     `/dev/input/by-id/usb-CX_2.4G_Wireless_Receiver-if01-hidraw`, not a bare
+     `/dev/hidrawN` number.
 
 3. **Investigate settings control.**
    - List `/dev/hidraw*` before and after plugging in the mouse; inspect the
@@ -39,17 +42,25 @@ No UI code until these answers exist.
 4. **Fix scope.** Write down the exact settings in v1 (candidates: DPI preset,
    polling rate, profile switch). Everything not proven here moves to "later".
 
-**Exit criteria:** a short note in `docs/` with commands run, observed output,
-and the chosen data source and settings scope.
+**Exit criteria met:** `docs/phase-0-findings.md` contains the commands, observed
+output, the chosen hidraw data source, and the decision to defer settings
+controls until a vendor command is known.
 
 ## Phase 1 — Minimal battery widget
 
 1. Create the plugin skeleton in `~/.config/omarchy/plugins/axel.kysona-m600/`
    (or develop here and link it in during testing).
-2. Implement a battery data source:
-   - Subscribe to UPower property changes; expose `percentage`, `state`, and
-     `available` to QML.
-   - Handle "device unplugged" as an explicit state, not as 0% or 100%.
+2. Implement a battery data source as a small user-space helper reading the
+   dongle's hidraw node (see Phase 0 findings):
+   - send the 17-byte request `08 04 00...00 49` to
+     `/dev/input/by-id/usb-CX_2.4G_Wireless_Receiver-if01-hidraw`;
+   - filter input reports by ID `08` and length 17, then decode capacity at
+     byte 6, charging at byte 7, voltage at bytes 8-9;
+   - add an udev `uaccess` rule for that hidraw node so no root is needed;
+   - poll at a modest interval (30-60 s), and expose `percentage`, `state`, and
+     `available` to QML;
+   - treat a vanished device (KVM switched to the Mac) as "unavailable", not as
+     0% or 100%.
 3. Build the bar widget with `qs.Ui` components:
    - battery icon + percentage, `textFormat: Text.PlainText`;
    - colors from the active theme via `qs.Commons` `Style`, no hardcoded values;
@@ -59,8 +70,8 @@ and the chosen data source and settings scope.
    `centerEnd` or `right` so the clock stays centered.
 5. Verify hot reload with saved edits and, if needed, `omarchy-shell shell rescanPlugins`.
 
-**Exit criteria:** percentage in the bar tracks `upower -i`, survives a shell
-restart, and follows theme changes.
+**Exit criteria:** percentage in the bar matches the decoded HID report, survives
+a shell restart and a KVM switch-away/return, and follows theme changes.
 
 ## Phase 2 — Click interaction and settings panel
 
