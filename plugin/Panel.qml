@@ -19,6 +19,7 @@ Panel {
   readonly property bool charging: available && battery.charging === true
   readonly property double voltage: available ? Number(battery.voltage) : 0
   readonly property string errorText: available ? "" : String(battery.error || "")
+  readonly property string mouseGlyph: "󰍽"
 
   Commons.Translations {
     id: strings
@@ -26,15 +27,12 @@ Panel {
   }
 
   function glyph() {
-    if (!available) return "󰁺"
-    var discharge = ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰂅"]
-    var charge = ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"]
-    var index = Math.max(0, Math.min(9, Math.floor(percentage / 10)))
-    return charging ? charge[index] : discharge[index]
+    return mouseGlyph
   }
 
   function stateLabel() {
     if (!available) return strings.t("mouseBattery.unavailable")
+    if (battery.stale === true) return strings.t("mouseBattery.stale")
     return charging ? strings.t("mouseBattery.charging") : strings.t("mouseBattery.discharging")
   }
 
@@ -54,8 +52,17 @@ Panel {
       var value = Number(parsed.percentage)
       if (!isFinite(value) || value < 0 || value > 100) return
       parsed.percentage = value
+      parsed.stale = false
+      battery = parsed
+      return
     }
-    battery = parsed
+    // The mouse goes to sleep on its own. Keep the last real reading visible
+    // instead of replacing it with "unavailable" on every missed poll.
+    if (battery.available === true) {
+      battery = Object.assign({}, battery, { stale: true, error: parsed.error || "" })
+    } else {
+      battery = parsed
+    }
   }
 
   Process {
@@ -63,7 +70,7 @@ Panel {
     command: ["python3", root.helperPath]
     stdout: StdioCollector {
       waitForEnd: true
-      onStreamFinished: function(text) { root.apply(text) }
+      onStreamFinished: root.apply(text)
     }
   }
 
@@ -81,13 +88,15 @@ Panel {
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
-  BarIconButton {
+  WidgetButton {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: root.glyph()
-    labelText: root.available && !button.vertical ? Commons.I18n.formatNumber(root.percentage) + "%" : ""
-    slotSize: Style.bar.iconSlot * (root.available && !button.vertical ? 2 : 1)
+    text: root.available
+      ? root.mouseGlyph + " " + Commons.I18n.formatNumber(root.percentage) + "%"
+      : root.mouseGlyph + " —"
+    fontSize: Style.font.body
+    keepSpace: true
     tooltipText: ""
     onPressed: function(b) {
       if (b === Qt.LeftButton) root.toggle()
@@ -288,8 +297,8 @@ Panel {
         }
 
         Text {
-          visible: !root.available
-          text: root.errorText || strings.t("mouseBattery.hint")
+          visible: !root.available || battery.stale === true
+          text: root.errorText || (battery.stale === true ? strings.t("mouseBattery.staleHint") : strings.t("mouseBattery.hint"))
           textFormat: Text.PlainText
           color: Qt.darker(root.bar.foreground, 1.4)
           font.family: root.bar.fontFamily

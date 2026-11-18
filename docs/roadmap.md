@@ -50,7 +50,8 @@ controls until a vendor command is known.
 
 The plugin, hidraw helper, translations, and udev rule are in `plugin/` and
 `udev/`. The plugin is linked into the user plugin directory and placed in
-`bar.layout.right`. Clicking opens a read-only battery panel.
+`bar.layout.right`, before `omarchy.agents`. The bar button is a mouse icon plus
+the percentage and is always visible. Clicking opens a read-only battery panel.
 
 1. Create the plugin skeleton in `~/.config/omarchy/plugins/axel.kysona-m600/`
    (or develop here and link it in during testing).

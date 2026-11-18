@@ -55,9 +55,11 @@ Sources checked while writing this:
 
 ## Current behaviour
 
-- **Bar widget:** battery icon plus percentage, using the active Omarchy theme
-  colors. Data comes from `plugin/battery.py` over hidraw, since UPower does not
-  expose this dongle. It polls every 30 seconds.
+- **Bar widget:** a mouse icon plus the percentage on its right, inside one
+  clickable button. It is always visible and sits immediately left of
+  `omarchy.agents`. Data comes from `plugin/battery.py` over hidraw, since UPower
+  does not expose this dongle. It polls every 30 seconds. If the mouse goes to
+  sleep, the last reading stays visible instead of flipping to "unavailable".
 - **On click:** a Quickshell panel with battery percentage, charge state,
   voltage, and device details. No settings controls yet.
 - **UI model:** the built-in `omarchy.monitor` display panel in the top bar. Same
@@ -99,9 +101,10 @@ These steps are done on this machine.
 2. Link this repo's `plugin/` directory into
    `~/.config/omarchy/plugins/axel.kysona-m600/`.
 3. Add `{"id": "axel.kysona-m600"}` to `bar.layout.right` in
-   `~/.config/omarchy/shell.json`.
-4. Changes hot-reload. Force a reload with
-   `omarchy-shell shell rescanPlugins`.
+   `~/.config/omarchy/shell.json`, before `omarchy.agents`. `omarchy bar put
+   axel.kysona-m600 --before omarchy.agents` does this.
+4. Because the plugin directory is a symlink to this repo, file-watch hot reload
+   does not fire. After edits, run `omarchy restart shell`.
 
 Check with `omarchy plugin list | grep kysona` and with `python3 plugin/battery.py`
 from this repo. The helper prints a JSON line with `available`, `percentage`,
