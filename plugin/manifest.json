@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "axel.kysona-m600",
+  "name": "Kysona M600 battery",
+  "version": "0.1.0",
+  "author": "axel",
+  "description": "Wireless battery level for the Kysona M600 mouse, read from its 2.4 GHz receiver",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Kysona M600 battery",
+    "description": "Mouse battery level from the 2.4 GHz receiver",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

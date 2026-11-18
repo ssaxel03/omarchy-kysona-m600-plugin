@@ -1,0 +1,5 @@
+# Allow the active desktop user to read the Kysona M600 2.4 GHz receiver.
+# Interface 1 carries the vendor HID reports used for battery status.
+# ID_SEAT is needed here because this receiver sits behind a KVM/dock and is
+# discovered as an external device without a seat assignment.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f5d5", ENV{ID_SEAT}="seat0", TAG+="uaccess"

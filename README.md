@@ -4,8 +4,9 @@ An [Omarchy](https://omarchy.org/) shell plugin that shows the battery level of 
 Kysona M600 wireless mouse in the bar. Clicking the widget opens a panel with the
 mouse's current settings and controls for changing them.
 
-**Status: planning / feasibility.** This repo contains documentation only. No
-plugin code exists yet. The plan is in [docs/roadmap.md](docs/roadmap.md).
+**Status: battery widget implemented.** The bar widget and battery panel are
+built and installed on this machine. Settings controls are not implemented; see
+[docs/roadmap.md](docs/roadmap.md) and [Phase 0 findings](docs/phase-0-findings.md).
 
 ## Why a separate repo
 
@@ -52,13 +53,13 @@ Sources checked while writing this:
 - UPower device properties reference — <https://upower.freedesktop.org/docs/Device.html>
 - Kysona M600 product page — <https://www.kysona.com/banner2-57137>
 
-## Planned behaviour
+## Current behaviour
 
 - **Bar widget:** battery icon plus percentage, using the active Omarchy theme
-  colors. Data comes from a small hidraw reader, since UPower does not expose
-  this dongle.
-- **On click:** a Quickshell panel showing battery detail and the settings we can
-  actually control. The exact controls depend on Phase 0 of the roadmap.
+  colors. Data comes from `plugin/battery.py` over hidraw, since UPower does not
+  expose this dongle. It polls every 30 seconds.
+- **On click:** a Quickshell panel with battery percentage, charge state,
+  voltage, and device details. No settings controls yet.
 - **UI model:** the built-in `omarchy.monitor` display panel in the top bar. Same
   pattern: a `bar-widget` plugin with a `Panel.qml` that uses `qs.Ui` `Panel` and
   supports keyboard navigation. Its source at
@@ -88,14 +89,23 @@ Sources checked while writing this:
 - Exact sensor, DPI ranges, and battery capacity differ between M600 variants and
   firmware batches. Confirm against the physical device before relying on them.
 
-## Install (planned, not implemented)
+## Install
 
-1. Install the udev `uaccess` rule for the dongle's hidraw node so the shell can
-   read it without root.
-2. Put or link the plugin source into `~/.config/omarchy/plugins/axel.kysona-m600/`.
-3. Add the id `axel.kysona-m600` to `bar.layout` in `~/.config/omarchy/shell.json`
-   (a section such as `centerEnd` or `right` keeps the clock centered).
-4. Changes hot-reload. If they do not, run `omarchy-shell shell rescanPlugins`.
+These steps are done on this machine.
+
+1. Install `udev/70-kysona-m600.rules` into `/etc/udev/rules.d/` and reload udev.
+   The `70-` prefix matters: the `uaccess` builtin runs in `73-seat-late.rules`,
+   so a later rule would be too late to get an access ACL.
+2. Link this repo's `plugin/` directory into
+   `~/.config/omarchy/plugins/axel.kysona-m600/`.
+3. Add `{"id": "axel.kysona-m600"}` to `bar.layout.right` in
+   `~/.config/omarchy/shell.json`.
+4. Changes hot-reload. Force a reload with
+   `omarchy-shell shell rescanPlugins`.
+
+Check with `omarchy plugin list | grep kysona` and with `python3 plugin/battery.py`
+from this repo. The helper prints a JSON line with `available`, `percentage`,
+`charging`, and `voltage`.
 
 ## Non-goals
 

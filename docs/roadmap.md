@@ -46,7 +46,11 @@ No UI code until these answers exist. Phase 0 is complete; findings are in
 output, the chosen hidraw data source, and the decision to defer settings
 controls until a vendor command is known.
 
-## Phase 1 — Minimal battery widget
+## Phase 1 — Minimal battery widget (done)
+
+The plugin, hidraw helper, translations, and udev rule are in `plugin/` and
+`udev/`. The plugin is linked into the user plugin directory and placed in
+`bar.layout.right`. Clicking opens a read-only battery panel.
 
 1. Create the plugin skeleton in `~/.config/omarchy/plugins/axel.kysona-m600/`
    (or develop here and link it in during testing).
@@ -70,8 +74,10 @@ controls until a vendor command is known.
    `centerEnd` or `right` so the clock stays centered.
 5. Verify hot reload with saved edits and, if needed, `omarchy-shell shell rescanPlugins`.
 
-**Exit criteria:** percentage in the bar matches the decoded HID report, survives
-a shell restart and a KVM switch-away/return, and follows theme changes.
+**Exit criteria:** percentage in the bar matches the decoded HID report and the
+plugin loads with no QML errors. Verified: helper returns the live value, the
+plugin is listed as enabled, and the shell log shows no QML errors. Not yet
+tested: shell restart, KVM switch-away/return, and theme changes.
 
 ## Phase 2 — Click interaction and settings panel
 
