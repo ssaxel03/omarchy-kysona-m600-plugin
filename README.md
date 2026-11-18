@@ -62,8 +62,12 @@ Sources checked while writing this:
   the 2.4 GHz receiver over hidraw (UPower does not expose that dongle). When the
   mouse is off or unreachable, the label switches to `—` and the panel shows
   "Unavailable". Charging adds a small bolt next to the percentage.
-- **On click:** a Quickshell panel with battery percentage, charge state,
-  voltage, and device details. No settings controls yet.
+  The displayed percentage is derived from the voltage curve published by
+  OpenKysona; the raw firmware level is shown separately in the panel as
+  "Reported level". During charging the panel prefixes the estimate with `~`.
+- **On click:** a Quickshell panel with the voltage-derived percentage, the raw
+  reported level, charge state, voltage, and device details. No settings
+  controls yet.
 - **UI model:** the built-in `omarchy.monitor` display panel in the top bar. Same
   pattern: a `bar-widget` plugin with a `Panel.qml` that uses `qs.Ui` `Panel` and
   supports keyboard navigation. Its source at

@@ -6,6 +6,7 @@
   "mouseBattery.connectionWired": "USB-C cable",
   "mouseBattery.state": "State",
   "mouseBattery.voltage": "Voltage",
+  "mouseBattery.reportedLevel": "Reported level",
   "mouseBattery.charging": "Charging",
   "mouseBattery.discharging": "Discharging",
   "mouseBattery.unavailable": "Unavailable",

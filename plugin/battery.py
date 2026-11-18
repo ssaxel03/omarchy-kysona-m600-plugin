@@ -12,6 +12,23 @@ BY_ID = "/dev/input/by-id/usb-CX_2.4G_Wireless_Receiver-if01-hidraw"
 REQUEST = bytes([0x08, 0x04] + [0x00] * 14 + [0x49])
 TIMEOUT = 3.0
 
+# mV at 0%, 5%, ... 100%, from the M600 V2 vendor driver. Same curve as
+# OpenKysona's src/lib/protocol/battery.ts.
+CURVE_MV = [
+    3050, 3420, 3480, 3540, 3600, 3660, 3720, 3760, 3800, 3840, 3880, 3920,
+    3940, 3960, 3980, 4000, 4020, 4040, 4060, 4080, 4110,
+]
+
+
+def percent_from_millivolts(millivolts):
+    if millivolts <= CURVE_MV[0]:
+        return 0
+    for index in range(1, len(CURVE_MV)):
+        low, high = CURVE_MV[index - 1], CURVE_MV[index]
+        if millivolts <= high:
+            return (index - 1) * 5 + ((millivolts - low) * 5) // (high - low)
+    return 100
+
 
 def read_sysfs():
     """The in-tree kysona driver exposes battery data when the mouse is wired."""
@@ -36,11 +53,14 @@ def read_sysfs():
         # USB-C, even though capacity and voltage are live. USB-C power means
         # charging unless the driver explicitly says Discharging.
         charging = values["status"] != "Discharging"
+        millivolts = voltage // 1000
         return {
             "available": True,
             "percentage": capacity,
             "charging": charging,
-            "voltage": round(voltage / 1000000.0, 3),
+            "voltage": round(millivolts / 1000.0, 3),
+            "millivolts": millivolts,
+            "voltageLevel": percent_from_millivolts(millivolts),
             "source": "wired",
             "error": "",
         }
@@ -112,6 +132,8 @@ def read_hidraw():
                 "percentage": capacity,
                 "charging": bool(data[7]),
                 "voltage": round(voltage / 1000.0, 3),
+                "millivolts": voltage,
+                "voltageLevel": percent_from_millivolts(voltage),
                 "source": "wireless",
                 "error": "",
             }

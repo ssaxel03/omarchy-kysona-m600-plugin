@@ -16,6 +16,9 @@ Panel {
   property var battery: ({})
   readonly property bool available: battery.available === true
   readonly property int percentage: available ? Math.max(0, Math.min(100, Number(battery.percentage))) : 0
+  readonly property int voltageLevel: available && battery.voltageLevel !== undefined
+    ? Math.max(0, Math.min(100, Number(battery.voltageLevel)))
+    : percentage
   readonly property bool charging: available && battery.charging === true
   readonly property double voltage: available ? Number(battery.voltage) : 0
   readonly property string errorText: available ? "" : String(battery.error || "")
@@ -83,7 +86,7 @@ Panel {
     anchors.fill: parent
     bar: root.bar
     text: root.available
-      ? root.mouseGlyph + " " + Commons.I18n.formatNumber(root.percentage) + "%"
+      ? root.mouseGlyph + " " + Commons.I18n.formatNumber(root.voltageLevel) + "%"
         + (root.charging ? " 󰂆" : "")
       : root.mouseGlyph + " —"
     fontSize: Style.font.body
@@ -170,7 +173,9 @@ Panel {
 
           Text {
             id: heroPercent
-            text: root.available ? Commons.I18n.formatNumber(root.percentage) + "%" : "—"
+            text: root.available
+              ? (root.charging ? "~" : "") + Commons.I18n.formatNumber(root.voltageLevel) + "%"
+              : "—"
             textFormat: Text.PlainText
             color: root.bar.foreground
             font.family: root.bar.fontFamily
@@ -199,7 +204,7 @@ Panel {
             height: track.height
             radius: track.radius
             color: root.bar.foreground
-            width: root.available ? Math.max(track.height, track.width * root.percentage / 100) : 0
+            width: root.available ? Math.max(track.height, track.width * root.voltageLevel / 100) : 0
 
             Behavior on width {
               NumberAnimation {
@@ -263,6 +268,29 @@ Panel {
             width: (parent.width - parent.spacing) / 2
             horizontalAlignment: Text.AlignRight
             elide: Text.ElideRight
+          }
+        }
+
+        Row {
+          width: parent.width
+          spacing: Style.space(10)
+
+          Text {
+            text: strings.t("mouseBattery.reportedLevel")
+            textFormat: Text.PlainText
+            color: Qt.darker(root.bar.foreground, 1.4)
+            font.family: root.bar.fontFamily
+            font.pixelSize: Style.font.body
+            width: (parent.width - parent.spacing) / 2
+          }
+          Text {
+            text: root.available ? Commons.I18n.formatNumber(root.percentage) + "%" : "—"
+            textFormat: Text.PlainText
+            color: root.bar.foreground
+            font.family: root.bar.fontFamily
+            font.pixelSize: Style.font.body
+            width: (parent.width - parent.spacing) / 2
+            horizontalAlignment: Text.AlignRight
           }
         }
 
