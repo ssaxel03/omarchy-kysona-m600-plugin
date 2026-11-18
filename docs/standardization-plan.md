@@ -1,5 +1,10 @@
 # Standardization plan
 
+**Status: completed on 2026-11-18.** The repo was flattened, pushed to
+`https://github.com/ssaxel03/omarchy-kysona-m600-plugin.git`, and installed with
+`omarchy plugin add ... --enable --yes`. The symlink is gone; the installed
+plugin is a real git checkout under `~/.config/omarchy/plugins/axel.kysona-m600/`.
+
 Goal: make `axel.kysona-m600` installable and maintainable through Omarchy's
 own plugin commands, with no symlinks and no manual file copying.
 
