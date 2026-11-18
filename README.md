@@ -62,9 +62,11 @@ Sources checked while writing this:
   the 2.4 GHz receiver over hidraw (UPower does not expose that dongle). When the
   mouse is off or unreachable, the label switches to `—` and the panel shows
   "Unavailable". Charging adds a small bolt next to the percentage.
-  The displayed percentage is derived from the voltage curve published by
-  OpenKysona; the raw firmware level is shown separately in the panel as
-  "Reported level". During charging the panel prefixes the estimate with `~`.
+  The displayed percentage comes from a piecewise resting-voltage lookup. While
+  charging, 80 mV is subtracted before the lookup to cancel the voltage lift; at
+  4.20 V while wired it reports 100%. The raw firmware level is shown separately
+  in the panel as "Reported level". During charging the panel prefixes the
+  estimate with `~`.
 - **On click:** a Quickshell panel with the voltage-derived percentage, the raw
   reported level, charge state, voltage, and device details. No settings
   controls yet.

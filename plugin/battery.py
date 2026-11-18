@@ -12,21 +12,26 @@ BY_ID = "/dev/input/by-id/usb-CX_2.4G_Wireless_Receiver-if01-hidraw"
 REQUEST = bytes([0x08, 0x04] + [0x00] * 14 + [0x49])
 TIMEOUT = 3.0
 
-# mV at 0%, 5%, ... 100%, from the M600 V2 vendor driver. Same curve as
-# OpenKysona's src/lib/protocol/battery.ts.
-CURVE_MV = [
-    3050, 3420, 3480, 3540, 3600, 3660, 3720, 3760, 3800, 3840, 3880, 3920,
-    3940, 3960, 3980, 4000, 4020, 4040, 4060, 4080, 4110,
+# Resting (unplugged) voltage lookup. Charging lifts the measured voltage, so
+# subtract CHARGE_OFFSET_MV before using this table while charging.
+RESTING_TABLE = [
+    (3300, 0), (3500, 5), (3700, 15), (3780, 30), (3850, 50),
+    (3950, 70), (4060, 85), (4200, 100),
 ]
+CHARGE_OFFSET_MV = 80
+FULL_MV = 4180
 
 
-def percent_from_millivolts(millivolts):
-    if millivolts <= CURVE_MV[0]:
+def percent_from_voltage(millivolts, charging, wired):
+    if wired and millivolts >= FULL_MV:
+        return 100
+    if charging and millivolts < FULL_MV:
+        millivolts -= CHARGE_OFFSET_MV
+    if millivolts <= RESTING_TABLE[0][0]:
         return 0
-    for index in range(1, len(CURVE_MV)):
-        low, high = CURVE_MV[index - 1], CURVE_MV[index]
-        if millivolts <= high:
-            return (index - 1) * 5 + ((millivolts - low) * 5) // (high - low)
+    for (low_mv, low_pct), (high_mv, high_pct) in zip(RESTING_TABLE, RESTING_TABLE[1:]):
+        if millivolts <= high_mv:
+            return low_pct + ((millivolts - low_mv) * (high_pct - low_pct)) // (high_mv - low_mv)
     return 100
 
 
@@ -54,13 +59,16 @@ def read_sysfs():
         # charging unless the driver explicitly says Discharging.
         charging = values["status"] != "Discharging"
         millivolts = voltage // 1000
+        level = percent_from_voltage(millivolts, charging, True)
+        if millivolts >= FULL_MV:
+            charging = False
         return {
             "available": True,
             "percentage": capacity,
             "charging": charging,
             "voltage": round(millivolts / 1000.0, 3),
             "millivolts": millivolts,
-            "voltageLevel": percent_from_millivolts(millivolts),
+            "voltageLevel": level,
             "source": "wired",
             "error": "",
         }
@@ -133,7 +141,7 @@ def read_hidraw():
                 "charging": bool(data[7]),
                 "voltage": round(voltage / 1000.0, 3),
                 "millivolts": voltage,
-                "voltageLevel": percent_from_millivolts(voltage),
+                "voltageLevel": percent_from_voltage(voltage, bool(data[7]), False),
                 "source": "wireless",
                 "error": "",
             }
