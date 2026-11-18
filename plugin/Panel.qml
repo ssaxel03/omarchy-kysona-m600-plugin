@@ -32,7 +32,6 @@ Panel {
 
   function stateLabel() {
     if (!available) return strings.t("mouseBattery.unavailable")
-    if (battery.stale === true) return strings.t("mouseBattery.stale")
     return charging ? strings.t("mouseBattery.charging") : strings.t("mouseBattery.discharging")
   }
 
@@ -52,17 +51,8 @@ Panel {
       var value = Number(parsed.percentage)
       if (!isFinite(value) || value < 0 || value > 100) return
       parsed.percentage = value
-      parsed.stale = false
-      battery = parsed
-      return
     }
-    // The mouse goes to sleep on its own. Keep the last real reading visible
-    // instead of replacing it with "unavailable" on every missed poll.
-    if (battery.available === true) {
-      battery = Object.assign({}, battery, { stale: true, error: parsed.error || "" })
-    } else {
-      battery = parsed
-    }
+    battery = parsed
   }
 
   Process {
@@ -75,7 +65,7 @@ Panel {
   }
 
   Timer {
-    interval: 30000
+    interval: 10000
     running: true
     repeat: true
     triggeredOnStart: true
@@ -297,8 +287,8 @@ Panel {
         }
 
         Text {
-          visible: !root.available || battery.stale === true
-          text: root.errorText || (battery.stale === true ? strings.t("mouseBattery.staleHint") : strings.t("mouseBattery.hint"))
+          visible: !root.available
+          text: root.errorText || strings.t("mouseBattery.hint")
           textFormat: Text.PlainText
           color: Qt.darker(root.bar.foreground, 1.4)
           font.family: root.bar.fontFamily

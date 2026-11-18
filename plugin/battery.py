@@ -79,7 +79,7 @@ def read_battery():
                 "voltage": round(voltage / 1000.0, 3),
                 "error": "",
             }
-        return {"available": False, "error": "no battery reply"}
+        return {"available": False, "error": "mouse is off or unreachable"}
     finally:
         os.close(fd)
 

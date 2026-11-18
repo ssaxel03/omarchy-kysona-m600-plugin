@@ -58,8 +58,8 @@ Sources checked while writing this:
 - **Bar widget:** a mouse icon plus the percentage on its right, inside one
   clickable button. It is always visible and sits immediately left of
   `omarchy.agents`. Data comes from `plugin/battery.py` over hidraw, since UPower
-  does not expose this dongle. It polls every 30 seconds. If the mouse goes to
-  sleep, the last reading stays visible instead of flipping to "unavailable".
+  does not expose this dongle. It polls every 10 seconds. When the mouse is off
+  or unreachable, the label switches to `—` and the panel shows "Unavailable".
 - **On click:** a Quickshell panel with battery percentage, charge state,
   voltage, and device details. No settings controls yet.
 - **UI model:** the built-in `omarchy.monitor` display panel in the top bar. Same

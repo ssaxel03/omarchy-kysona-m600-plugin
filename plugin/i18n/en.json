@@ -7,8 +7,6 @@
   "mouseBattery.charging": "Charging",
   "mouseBattery.discharging": "Discharging",
   "mouseBattery.unavailable": "Unavailable",
-  "mouseBattery.stale": "Last reading (mouse asleep)",
-  "mouseBattery.staleHint": "Move the mouse or switch the KVM back to this desktop to refresh.",
   "mouseBattery.hint": "Connect the 2.4 GHz receiver to read the battery.",
   "mouseBattery.refresh": "Press R to refresh."
 }
