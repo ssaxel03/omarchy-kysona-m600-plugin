@@ -5,6 +5,7 @@ import glob
 import json
 import os
 import select
+import statistics
 import sys
 import time
 
@@ -20,6 +21,16 @@ CURVE_MV = [
 ]
 CHARGE_OFFSET_MV = 80
 FULL_MV = 4180
+
+CACHE_DIR = os.path.join(
+    os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")),
+    "omarchy-kysona-m600",
+)
+CACHE_FILE = os.path.join(CACHE_DIR, "battery.jsonl")
+MAX_SAMPLES = 1200
+MAX_AGE_SECONDS = 12 * 3600
+MIN_GAP_SECONDS = 60
+MAX_GAP_SECONDS = 2 * 3600
 
 
 def percent_from_millivolts(millivolts):
@@ -38,6 +49,80 @@ def percent_from_voltage(millivolts, charging, wired):
     if charging and millivolts < FULL_MV:
         millivolts -= CHARGE_OFFSET_MV
     return percent_from_millivolts(millivolts)
+
+
+def load_samples():
+    """Read cached readings, newest last. Bad or old lines are ignored."""
+    try:
+        with open(CACHE_FILE, "r", encoding="ascii") as handle:
+            lines = handle.readlines()
+    except OSError:
+        return []
+    now = time.time()
+    samples = []
+    for line in lines:
+        try:
+            item = json.loads(line)
+            if not all(key in item for key in ("ts", "pct", "charging")):
+                continue
+            if item["ts"] > now - MAX_AGE_SECONDS:
+                samples.append(item)
+        except (ValueError, TypeError):
+            continue
+    return samples[-MAX_SAMPLES:]
+
+
+def append_sample(result):
+    """Store one timestamped reading with the level it was measured at."""
+    sample = {
+        "ts": time.time(),
+        "pct": result["voltageLevel"],
+        "charging": result["charging"],
+        "source": result["source"],
+    }
+    samples = load_samples() + [sample]
+    try:
+        os.makedirs(CACHE_DIR, exist_ok=True)
+        temporary = CACHE_FILE + ".tmp"
+        with open(temporary, "w", encoding="ascii") as handle:
+            for item in samples[-MAX_SAMPLES:]:
+                handle.write(json.dumps(item) + "\n")
+        os.replace(temporary, CACHE_FILE)
+    except OSError:
+        pass
+    return samples[-MAX_SAMPLES:]
+
+
+def estimate_eta(samples, current):
+    """Estimate seconds to full/empty from local charge/discharge history."""
+    pct = current.get("voltageLevel", current.get("pct"))
+    charging = current["charging"]
+    target = 100 if charging else 0
+    if (charging and pct >= 99) or (not charging and pct <= 1):
+        return 0
+
+    now = current.get("ts", time.time())
+    candidates = []
+    for item in samples:
+        if item is current or item["charging"] != charging:
+            continue
+        elapsed = now - item["ts"]
+        if not MIN_GAP_SECONDS <= elapsed <= MAX_GAP_SECONDS:
+            continue
+        change = pct - item["pct"]
+        if (charging and change <= 1) or (not charging and change >= -1):
+            continue
+        candidates.append((abs(change), -item["ts"], (change / elapsed)))
+
+    if not candidates:
+        return None
+    candidates.sort(key=lambda entry: (entry[0], entry[1]))
+    rates = [entry[2] for entry in candidates[:8]]
+    rate = statistics.median(rates)
+    if rate == 0:
+        return None
+    eta = abs(target - pct) / abs(rate)
+    return int(eta) if 0 <= eta <= 24 * 3600 else None
 
 
 def read_sysfs():
@@ -163,8 +248,17 @@ def read_hidraw():
 def main():
     try:
         result = read_sysfs() or read_hidraw()
+        if result.get("available"):
+            samples = append_sample(result)
+            result["etaSeconds"] = estimate_eta(samples, result)
+        else:
+            result["etaSeconds"] = None
     except Exception as exc:  # keep the shell alive on unexpected device states
-        result = {"available": False, "error": "{}: {}".format(type(exc).__name__, exc)}
+        result = {
+            "available": False,
+            "error": "{}: {}".format(type(exc).__name__, exc),
+            "etaSeconds": None,
+        }
     sys.stdout.write(json.dumps(result) + "\n")
     return 0
 

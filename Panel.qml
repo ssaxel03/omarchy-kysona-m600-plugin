@@ -17,6 +17,7 @@ Panel {
   readonly property bool available: battery.available === true
   readonly property bool charging: available && battery.charging === true
   readonly property double voltage: available ? Number(battery.voltage) : 0
+  readonly property var etaSeconds: available ? battery.etaSeconds : null
   readonly property string errorText: available ? "" : String(battery.error || "")
   readonly property string mouseGlyph: "󰍽"
 
@@ -41,6 +42,17 @@ Panel {
   function stateLabel() {
     if (!available) return strings.t("mouseBattery.unavailable")
     return charging ? strings.t("mouseBattery.charging") : strings.t("mouseBattery.discharging")
+  }
+
+  function etaText() {
+    if (!available || etaSeconds === undefined || etaSeconds === null)
+      return strings.t("mouseBattery.estimating")
+    var seconds = Number(etaSeconds)
+    if (!isFinite(seconds) || seconds < 0) return strings.t("mouseBattery.estimating")
+    if (seconds < 60) return "<1 " + strings.t("mouseBattery.minute")
+    var minutes = Math.round(seconds / 60)
+    if (minutes < 60) return minutes + " " + strings.t("mouseBattery.minute")
+    return Math.floor(minutes / 60) + "h " + (minutes % 60) + "m"
   }
 
   function refresh() {
@@ -324,7 +336,34 @@ Panel {
             width: (parent.width - parent.spacing) / 2
           }
           Text {
-            text: root.available ? Commons.I18n.formatNumber(root.voltage, 2) + " V" : "—"
+            text: root.available
+              ? Commons.I18n.formatNumber(root.voltage, 2) + " V ("
+                + (root.charging ? strings.t("mouseBattery.charging") : strings.t("mouseBattery.discharging"))
+                + ")"
+              : "—"
+            textFormat: Text.PlainText
+            color: root.bar.foreground
+            font.family: root.bar.fontFamily
+            font.pixelSize: Style.font.body
+            width: (parent.width - parent.spacing) / 2
+            horizontalAlignment: Text.AlignRight
+          }
+        }
+
+        Row {
+          width: parent.width
+          spacing: Style.space(10)
+
+          Text {
+            text: root.charging ? strings.t("mouseBattery.timeUntilFull") : strings.t("mouseBattery.timeUntilEmpty")
+            textFormat: Text.PlainText
+            color: Qt.darker(root.bar.foreground, 1.4)
+            font.family: root.bar.fontFamily
+            font.pixelSize: Style.font.body
+            width: (parent.width - parent.spacing) / 2
+          }
+          Text {
+            text: root.etaText()
             textFormat: Text.PlainText
             color: root.bar.foreground
             font.family: root.bar.fontFamily

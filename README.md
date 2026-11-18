@@ -7,7 +7,9 @@ connection details.
 
 Battery works with the **USB-C cable** and the **2.4 GHz dongle**. The percentage
 is estimated from the vendor voltage curve published by
-[OpenKysona](https://github.com/leoben49/OpenKysona).
+[OpenKysona](https://github.com/leoben49/OpenKysona). The panel also estimates
+time to full or empty from cached readings, so it learns your mouse's real
+charge and discharge rate.
 
 Settings controls (DPI, polling rate, sensor options, button mapping) are on the
 roadmap. See [Settings roadmap](#settings-roadmap).

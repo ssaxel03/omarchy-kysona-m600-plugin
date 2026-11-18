@@ -9,6 +9,7 @@ display is done. Everything below is what could be built next.
 - Click opens a read-only panel with charge state, voltage, and connection.
 - Wired battery comes from sysfs; 2.4 GHz battery comes from hidraw.
 - Voltage-based estimate with charging compensation and smoothing.
+- Time-to-full/empty estimate cached in `~/.cache/omarchy-kysona-m600/`.
 
 The discovery process is in [phase-0-findings.md](phase-0-findings.md). The
 install path is in [standardization-plan.md](standardization-plan.md).
