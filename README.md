@@ -1,11 +1,15 @@
-# Kysona M600 battery for Omarchy
+# Omarchy Kysona M600 Plugin
 
-A small module for the Omarchy bar. It shows your mouse battery level next to
-the agents icon: a mouse icon, the percentage, and a charging bolt when plugged
-in. Click it for charge state, voltage, and connection details.
+An Omarchy plugin for the Kysona M600 mouse. It currently provides a bar module
+that shows battery level next to the agents icon: a mouse icon, the percentage,
+and a charging bolt when plugged in. Click it for charge state, voltage, and
+connection details.
 
-It works with the **USB-C cable** and the **2.4 GHz dongle**. The percentage is
-estimated from the mouse's voltage.
+Battery works with the **USB-C cable** and the **2.4 GHz dongle**. The percentage
+is estimated from the mouse's voltage.
+
+Settings controls (DPI, polling rate, sensor options, button mapping) are on the
+roadmap. See [Settings roadmap](#settings-roadmap).
 
 ## Install
 
